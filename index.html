@@ -633,32 +633,37 @@
 
     <div class="contact-form">
       <form id="contactForm" onsubmit="handleSubmit(event)">
+        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY" />
+        <input type="hidden" name="subject" value="Đăng ký tư vấn Sani — Phòng khám mới" />
+        <input type="hidden" name="from_name" value="Sani Landing Page" />
+        <input type="checkbox" name="botcheck" style="display:none" />
+
         <div class="form-row">
           <div class="form-group">
             <label>Họ và tên<span>*</span></label>
-            <input type="text" placeholder="BS. Nguyễn Văn A" required />
+            <input type="text" name="Họ và tên" placeholder="BS. Nguyễn Văn A" required />
           </div>
           <div class="form-group">
             <label>Số điện thoại<span>*</span></label>
-            <input type="tel" placeholder="0912 345 678" required />
+            <input type="tel" name="Số điện thoại" placeholder="0912 345 678" required />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>Email</label>
-            <input type="email" placeholder="bacle@phongkham.vn" />
+            <input type="email" name="email" placeholder="bacle@phongkham.vn" />
           </div>
           <div class="form-group">
             <label>Tên phòng khám<span>*</span></label>
-            <input type="text" placeholder="Phòng khám Đa khoa ABC" required />
+            <input type="text" name="Tên phòng khám" placeholder="Phòng khám Đa khoa ABC" required />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>Chuyên khoa<span>*</span></label>
-            <select required>
+            <select name="Chuyên khoa" required>
               <option value="" disabled selected>Chọn chuyên khoa</option>
               <option>Đa khoa</option>
               <option>Nội tổng quát</option>
@@ -675,7 +680,7 @@
           </div>
           <div class="form-group">
             <label>Tỉnh / Thành phố<span>*</span></label>
-            <select required>
+            <select name="Tỉnh thành" required>
               <option value="" disabled selected>Chọn tỉnh thành</option>
               <option>TP. Hồ Chí Minh</option>
               <option>Hà Nội</option>
@@ -694,7 +699,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>Số bác sĩ hiện tại</label>
-            <select>
+            <select name="Số bác sĩ">
               <option value="" disabled selected>Chọn quy mô</option>
               <option>1 bác sĩ</option>
               <option>2–3 bác sĩ</option>
@@ -704,7 +709,7 @@
           </div>
           <div class="form-group">
             <label>Đang dùng phần mềm nào?</label>
-            <select>
+            <select name="Phần mềm hiện tại">
               <option value="" disabled selected>Chọn tình trạng hiện tại</option>
               <option>Chưa dùng phần mềm nào</option>
               <option>Đang dùng Excel / Sổ tay</option>
@@ -716,12 +721,12 @@
         <div class="form-row">
           <div class="form-group full">
             <label>Bạn quan tâm tính năng nào nhất?</label>
-            <textarea placeholder="Ví dụ: tôi muốn tích hợp Zalo OA và thanh toán MoMo, hoặc cần hỗ trợ hóa đơn điện tử..."></textarea>
+            <textarea name="Tính năng quan tâm" placeholder="Ví dụ: tôi muốn tích hợp Zalo OA và thanh toán MoMo, hoặc cần hỗ trợ hóa đơn điện tử..."></textarea>
           </div>
         </div>
 
         <div class="form-submit">
-          <button type="submit" class="btn btn-primary">Đăng ký tư vấn miễn phí →</button>
+          <button type="submit" id="submitBtn" class="btn btn-primary">Đăng ký tư vấn miễn phí →</button>
           <p class="form-note">🔒 Thông tin của bạn được bảo mật tuyệt đối. Chúng tôi không spam.</p>
         </div>
       </form>
@@ -729,15 +734,48 @@
       <div class="form-success" id="formSuccess">
         ✅ Cảm ơn bạn đã đăng ký! Đội ngũ Sani sẽ liên hệ trong vòng 2 giờ làm việc.
       </div>
+      <div id="formError" style="display:none;text-align:center;padding:1rem;color:#dc2626;background:#fef2f2;border-radius:12px;margin-top:1rem;font-size:0.9rem;">
+        Có lỗi xảy ra, vui lòng thử lại hoặc liên hệ trực tiếp qua số hotline.
+      </div>
     </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-  function handleSubmit(e) {
+  const SUPABASE_URL = 'https://cbzdazbpknbeetobgzyc.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiemRhemJwa25iZWV0b2JnenljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTU2MDYsImV4cCI6MjA5NzI3MTYwNn0.FB87HzEpXHeNi0YldA3yGBJamUFoYyUZgvOb4DGhBUk';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    document.getElementById('contactForm').style.display = 'none';
-    document.getElementById('formSuccess').style.display = 'block';
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Đang gửi...';
+
+    const f = e.target;
+    const getValue = (name) => f.querySelector(`[name="${name}"]`)?.value || null;
+
+    const { error } = await supabase.from('leads').insert({
+      ho_ten:             getValue('Họ và tên'),
+      so_dien_thoai:      getValue('Số điện thoại'),
+      email:              getValue('email'),
+      ten_phong_kham:     getValue('Tên phòng khám'),
+      chuyen_khoa:        getValue('Chuyên khoa'),
+      tinh_thanh:         getValue('Tỉnh thành'),
+      so_bac_si:          getValue('Số bác sĩ'),
+      phan_mem_hien_tai:  getValue('Phần mềm hiện tại'),
+      tinh_nang_quan_tam: getValue('Tính năng quan tâm'),
+    });
+
+    if (error) {
+      document.getElementById('formError').style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Đăng ký tư vấn miễn phí →';
+    } else {
+      document.getElementById('contactForm').style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'block';
+    }
   }
 </script>
 
